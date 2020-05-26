@@ -1,0 +1,10 @@
+[Unit]
+Description={{ program.description }}
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/{{ program.name }} {{ program.parameters | default([]) | join(" ") }}
+
+[Install]
+WantedBy=default.target

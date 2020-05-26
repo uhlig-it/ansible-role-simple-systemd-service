@@ -1,0 +1,11 @@
+[Unit]
+Description=Invokes the {{ program.name }} service at the given interval
+After=network-online.target
+
+[Timer]
+{% for entry in program.timer %}
+{{ entry }}
+{% endfor %}
+
+[Install]
+WantedBy=timers.target

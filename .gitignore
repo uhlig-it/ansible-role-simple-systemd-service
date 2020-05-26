@@ -1,0 +1,5 @@
+.envrc
+ansible.cfg
+.DS_Store
+*.retry
+.vagrant

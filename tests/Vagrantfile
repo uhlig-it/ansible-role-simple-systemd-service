@@ -1,0 +1,31 @@
+require 'pathname'
+
+Vagrant.configure('2') do |config|
+  config.vm.provider('virtualbox') do |v|
+    v.cpus = 4
+    v.memory = 512
+  end
+
+  debian =  %w(jessie stretch buster).map { |b| "debian/#{b}64" }
+  ubuntu =  %w(xenial bionic focal).map { |b| "ubuntu/#{b}64" }
+  playbooks = Dir.glob('playbook-*.yml')
+
+  playbooks.product(debian + ubuntu).each do |playbook, box|
+    playbook_type = playbook.match(/playbook-(.*)\.yml/)[1]
+    family, flavour = box.split('/')
+
+    vm_name = [flavour, playbook_type].join('-')
+    config.vm.define(vm_name) do |machine|
+      machine.vm.box = box
+
+      machine.vm.provision 'ansible' do |ansible|
+        ansible.playbook = playbook
+        ansible.galaxy_roles_path = '../..'
+        ansible.compatibility_mode = '2.0'
+        ansible.extra_vars = { ansible_python_interpreter: '/usr/bin/python3' } if family == 'ubuntu'
+      end
+
+      machine.vm.provision 'shell', path: 'scripts/run-tests', privileged: false
+    end
+  end
+end

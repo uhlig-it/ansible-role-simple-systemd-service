@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# To be run within the VM
+
+set -euo pipefail
+IFS=$'\n\t'
+
+# service exists
+sudo sh -c "systemctl show hello.service | grep UnitFileState=enabled"
+
+# service is enabled
+sudo sh -c "systemctl show hello.service | UnitFilePreset=enabled"
+
+# timer is active
+sudo sh -c "systemctl show hello.timer | grep -q "ActiveState=active""
