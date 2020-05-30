@@ -36,3 +36,6 @@
     daemon_reload: true
   when: program["timer"] is defined and (program["timer"] | length > 0)
   tags: [ systemd, timer ]
+
+- include: deployment_event.yml
+  when: influxdb_url is defined and (influxdb_url | length > 0)

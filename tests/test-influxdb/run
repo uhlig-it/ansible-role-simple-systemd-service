@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# To be run within the VM
+
+set -euo pipefail
+IFS=$'\n\t'
+
+QUERY="SELECT COUNT(title) FROM events WHERE host = '$(hostname)' AND time > now() - 5m"
+
+# there must be 1 or more recent deployment events for this host
+test 0 -lt "$(
+    curl --silent "http://influxdb.local:8086/query?db=playbook-tests&precision=s" \
+         --data-urlencode "q=$QUERY" \
+  | jq '.results[].series[] | select(.name == "events").values[0][1]'
+)"

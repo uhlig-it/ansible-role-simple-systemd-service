@@ -1,0 +1,23 @@
+---
+- hosts: all
+  vars:
+    program:
+      binary: tests/fixtures/hello
+      name: hello
+      description: Says hello
+      timer:
+        - OnUnitActiveSec=24h
+    influxdb_url: http://influxdb.local:8086/playbook-tests
+  tasks:
+    - name: Test prerequisites are installed
+      apt:
+        name:
+          - curl
+          - jq
+        state: present
+        update_cache: true
+      become: yes
+      tags: apt, curl, jq
+  roles:
+    - role: uhlig-it.ansible-role-simple-systemd-service
+      become: true

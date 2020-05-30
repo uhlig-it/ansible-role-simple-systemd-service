@@ -1,0 +1,39 @@
+- name: Version of the deployed binary is registered
+  command: "/usr/local/bin/{{ program.name }} --version"
+  register: program_version
+  tags: [ version, deployment ]
+
+- name: System packages are installed
+  apt:
+    name:
+      - python3-pip
+      - python3-setuptools
+    state: present
+    update_cache: true
+  tags: apt, pip, python, influxdb
+
+- name: Python modules are present
+  pip:
+    name:
+    - influxdb
+  tags: [ influxdb, python, pip ]
+
+# curl -i -X POST "http://localhost:8086/write?db=playbook-tests&precision=s" --data-binary 'events title="foo" 1463683075'
+- name: Deployment event info is written
+  influxdb_write:
+    hostname: "{{ influxdb_url | urlsplit('hostname') }}"
+    ssl: "{% if influxdb_url[0:5] == 'https' %}true{% else %}false{% endif %}"
+    use_udp: false
+    udp_port: 4444
+    port: "{{ influxdb_url | urlsplit('port') }}"
+# TODO Leave nil if empty
+#    username: "{{ influxdb_url | urlsplit('username') }}"
+#    password: "{{ influxdb_url | urlsplit('password') }}"
+    database_name: "{{ influxdb_url | urlsplit('path') | replace('/', '') }}"
+    data_points:
+      - measurement: events
+        tags:
+          host: "{{ inventory_hostname }}"
+        fields:
+          title: "Deployment of {{ program.name }} {{ program_version.stdout }}"
+  tags: [ influxdb, events, deployment ]

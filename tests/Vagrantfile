@@ -6,26 +6,57 @@ Vagrant.configure('2') do |config|
     v.memory = 512
   end
 
-  debian =  %w(jessie stretch buster).map { |b| "debian/#{b}64" }
-  ubuntu =  %w(xenial bionic focal).map { |b| "ubuntu/#{b}64" }
-  playbooks = Dir.glob('playbook-*.yml')
+  config.vm.define('influxdb') do |machine|
+    machine.vm.box = 'debian/buster64'
+    machine.vm.hostname = 'influxdb'
+    machine.vm.network 'private_network', type: 'dhcp'
 
-  playbooks.product(debian + ubuntu).each do |playbook, box|
-    playbook_type = playbook.match(/playbook-(.*)\.yml/)[1]
+    # https://stackoverflow.com/a/30780347/3212907
+    machine.vm.provision 'hostname-resolution', type: 'shell' do |script|
+      script.inline = 'apt-get --yes install avahi-daemon libnss-mdns'
+    end
+    machine.vm.provision 'ansible' do |ansible|
+      ansible.playbook = 'support/influxdb.yml'
+      ansible.compatibility_mode = '2.0'
+      ansible.extra_vars = {
+        ansible_python_interpreter: '/usr/bin/python3'
+      }
+    end
+  end
+
+  debian = %w(jessie stretch buster).map { |b| "debian/#{b}64" }
+  ubuntu = %w(xenial bionic focal).map { |b| "ubuntu/#{b}64" }
+
+  Pathname.glob('test-*').product(debian + ubuntu).each do |test_dir, box|
+    test_name = test_dir.to_s.match(/test-(.*)/)[1]
     family, flavour = box.split('/')
+    vm_name = [flavour, test_name].join('-')
 
-    vm_name = [flavour, playbook_type].join('-')
     config.vm.define(vm_name) do |machine|
       machine.vm.box = box
+      machine.vm.hostname = [flavour, test_name].join('-')
+      machine.vm.network 'private_network', type: 'dhcp'
 
-      machine.vm.provision 'ansible' do |ansible|
-        ansible.playbook = playbook
-        ansible.galaxy_roles_path = '../..'
-        ansible.compatibility_mode = '2.0'
-        ansible.extra_vars = { ansible_python_interpreter: '/usr/bin/python3' } if family == 'ubuntu'
+      machine.vm.provision 'hostname-resolution', type: 'shell' do |script|
+        script.inline = 'apt-get --yes install avahi-daemon libnss-mdns'
       end
 
-      machine.vm.provision 'shell', path: 'scripts/run-tests', privileged: false
+      machine.vm.provision 'ansible' do |ansible|
+        ansible.playbook = (test_dir / 'playbook.yml').to_s
+        ansible.galaxy_roles_path = '../..'
+        ansible.compatibility_mode = '2.0'
+
+        extra_vars = {}
+        extra_vars[:ansible_python_interpreter] = '/usr/bin/python3'
+        extra_vars[:influxdb_url] = 'http://influxdb.local:8086/playbook-tests' if test_name == 'influxdb'
+        ansible.extra_vars = extra_vars
+      end
+
+      test_script = test_dir / 'run'
+
+      if test_script.exist?
+        machine.vm.provision 'run-tests', type: 'shell', path: test_script.to_s, privileged: false
+      end
     end
   end
 end
