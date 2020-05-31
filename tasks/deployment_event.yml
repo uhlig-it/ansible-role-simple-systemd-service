@@ -18,7 +18,6 @@
     - influxdb
   tags: [ influxdb, python, pip ]
 
-# curl -i -X POST "http://localhost:8086/write?db=playbook-tests&precision=s" --data-binary 'events title="foo" 1463683075'
 - name: Deployment event info is written
   influxdb_write:
     hostname: "{{ influxdb_url | urlsplit('hostname') }}"

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# To be run within the VM
+
+set -euo pipefail
+IFS=$'\n\t'
+
+export time_frame=5m
+
+query="SELECT COUNT(title) FROM events WHERE host = '$(hostname)' AND time > now() - $time_frame"
+response=$(curl --silent "http://influxdb.local:8086/query?db=playbook-tests&precision=s" --data-urlencode "q=$query")
+
+# fail if there are no results in the response
+echo "$response" | jq '.results[] | index("series") or error("No deployment events found in the last \(env.time_frame).")'
+
+# extract event count
+event_count=$(echo "$response" | jq '.results[].series[] | select(.name == "events").values[0][1]')
+
+# there must be 1 or more recent deployment events for this host
+if [ "$event_count" -gt 0 ]; then
+  echo "OK - Found $event_count deployment events in the last $time_frame."
+else
+  >&2 echo "Error: Expected at least one deployment event, but only found $event_count in the last $time_frame."
+fi
