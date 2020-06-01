@@ -1,12 +1,6 @@
 require 'pathname'
 
 Vagrant.configure('2') do |config|
-  # config.vm.provider('virtualbox') do |v|
-  #   v.cpus = 4
-  #   v.memory = 512
-  #   v.gui = true
-  # end
-
   config.vm.define('influxdb') do |machine|
     machine.vm.box = 'debian/buster64'
     machine.vm.hostname = 'influxdb'
@@ -28,9 +22,10 @@ Vagrant.configure('2') do |config|
   end
 
   debian = %w(stretch buster).map { |b| "debian/#{b}64" }
-  ubuntu = %w(bionic focal).map { |b| "ubuntu/#{b}64" }
+  ubuntu = %w(bionic).map { |b| "ubuntu/#{b}64" }
+  other = %w(generic/ubuntu2004)
 
-  Pathname.glob('test-*').product(debian + ubuntu).each do |test_dir, box|
+  Pathname.glob('test-*').product(debian + ubuntu + other).each do |test_dir, box|
     test_name = test_dir.to_s
     family, flavour = box.split('/')
     vm_name = [test_name, flavour].join('-')
