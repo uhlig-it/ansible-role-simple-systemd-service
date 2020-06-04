@@ -25,9 +25,8 @@
     use_udp: false
     udp_port: 4444
     port: "{{ influxdb_url | urlsplit('port') }}"
-# TODO Leave nil if empty
-#    username: "{{ influxdb_url | urlsplit('username') }}"
-#    password: "{{ influxdb_url | urlsplit('password') }}"
+    username: "{{ influxdb_url | urlsplit('username') }}"
+    password: "{{ influxdb_url | urlsplit('password') }}"
     database_name: "{{ influxdb_url | urlsplit('path') | replace('/', '') }}"
     data_points:
       - measurement: events

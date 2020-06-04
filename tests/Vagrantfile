@@ -9,7 +9,8 @@ Vagrant.configure('2') do |config|
     # make VMs known to each other by name
     # https://stackoverflow.com/a/30780347/3212907
     machine.vm.provision 'hostname-resolution', type: 'shell' do |script|
-      script.inline = 'DEBIAN_FRONTEND=noninteractive apt-get --yes install avahi-daemon libnss-mdns'
+      script.env = { DEBIAN_FRONTEND: 'noninteractive' }
+      script.inline = 'apt-get --yes install avahi-daemon libnss-mdns'
     end
 
     machine.vm.provision 'ansible' do |ansible|
@@ -36,7 +37,8 @@ Vagrant.configure('2') do |config|
       machine.vm.network 'private_network', type: 'dhcp'
 
       machine.vm.provision 'hostname-resolution', type: 'shell' do |script|
-        script.inline = 'DEBIAN_FRONTEND=noninteractive apt-get --yes install avahi-daemon libnss-mdns'
+        script.env = { DEBIAN_FRONTEND: 'noninteractive' }
+        script.inline = 'apt-get --yes install avahi-daemon libnss-mdns'
       end
 
       machine.vm.provision 'ansible' do |ansible|
@@ -54,7 +56,8 @@ Vagrant.configure('2') do |config|
 
       if test_script.exist?
         machine.vm.provision 'test-prereqs', type: 'shell' do |script|
-          script.inline = 'export DEBIAN_FRONTEND=noninteractive apt-get update && apt-get --yes install curl jq'
+          script.env = { DEBIAN_FRONTEND: 'noninteractive' }
+          script.inline = 'apt-get update && apt-get --yes install curl jq'
         end
 
         machine.vm.provision 'run-tests', type: 'shell', path: test_script.to_s, privileged: false
