@@ -11,8 +11,5 @@ sudo sh -c "systemctl show hello.service | grep UnitFileState=enabled"
 # service is enabled
 sudo sh -c "systemctl show hello.service | UnitFilePreset=enabled"
 
-# timer is active
-sudo sh -c "systemctl show hello.timer | grep -q "ActiveState=active""
-
-# service is of type oneshot
-grep Type=oneshot /etc/systemd/system/hello.service
+# service is of type simple
+grep Type=simple /etc/systemd/system/hello.service

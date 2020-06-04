@@ -1,0 +1,10 @@
+---
+- hosts: all
+  vars:
+    program:
+      binary: tests/fixtures/hellod
+      name: hello
+      description: Keeps on saying hello
+  roles:
+    - role: uhlig-it.ansible-role-simple-systemd-service
+      become: true

@@ -3,7 +3,11 @@ Description={{ program.description }}
 After=network-online.target
 
 [Service]
+{% if program["timer"] is defined and (program["timer"] | length > 0) %}
 Type=oneshot
+{% else %}
+Type=simple
+{% endif %}
 ExecStart=/usr/local/bin/{{ program.name }} {{ program.parameters | default([]) | join(" ") }}
 
 [Install]
