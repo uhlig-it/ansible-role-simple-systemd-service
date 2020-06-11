@@ -8,7 +8,7 @@ Type=oneshot
 {% else %}
 Type=simple
 {% endif %}
-ExecStart=/usr/local/bin/{{ program.name }} {{ program.parameters | default([]) | join(" ") }}
+ExecStart=/usr/local/bin/{{ program.name }} {{ program.parameters | default([]) | join(" ") | replace("%", "%%") }}
 
 [Install]
 WantedBy=default.target
