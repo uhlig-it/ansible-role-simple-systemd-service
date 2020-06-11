@@ -20,14 +20,14 @@
 
 - name: Deployment event info is written
   influxdb_write:
-    hostname: "{{ influxdb_url | urlsplit('hostname') }}"
-    ssl: "{% if influxdb_url[0:5] == 'https' %}true{% else %}false{% endif %}"
+    hostname: "{{ deployment_event_url | urlsplit('hostname') }}"
+    ssl: "{% if deployment_event_url[0:5] == 'https' %}true{% else %}false{% endif %}"
     use_udp: false
     udp_port: 4444
-    port: "{{ influxdb_url | urlsplit('port') }}"
-    username: "{{ influxdb_url | urlsplit('username') }}"
-    password: "{{ influxdb_url | urlsplit('password') }}"
-    database_name: "{{ influxdb_url | urlsplit('path') | replace('/', '') }}"
+    port: "{{ deployment_event_url | urlsplit('port') }}"
+    username: "{{ deployment_event_url | urlsplit('username') }}"
+    password: "{{ deployment_event_url | urlsplit('password') }}"
+    database_name: "{{ deployment_event_url | urlsplit('path') | replace('/', '') }}"
     data_points:
       - measurement: events
         tags:

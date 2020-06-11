@@ -38,4 +38,4 @@
   tags: [ systemd, timer ]
 
 - include: deployment_event.yml
-  when: influxdb_url is defined and (influxdb_url | length > 0)
+  when: deployment_event_url is defined and (deployment_event_url | length > 0)

@@ -22,4 +22,4 @@ program:
 
 This role can also send an event to an InfluxDB instance when a program has been deployed. Set the following variable in order to enable this:
 
-* `influxdb_url` - where to write to, incl. user, password and database name
+* `deployment_event_url` - where to write the event to, incl. user, password and database name (as URL path)
