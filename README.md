@@ -1,6 +1,6 @@
 # `simple_systemd_service`
 
-An Ansible collection for deploying a simple binary that runs as a systemd service; either as long-running job or invoked by an accompanying systemd timer.
+Ansible role for deploying a simple binary that runs as a systemd service; either as long-running job or invoked by an accompanying systemd timer.
 
 # Variables
 
@@ -20,6 +20,4 @@ program:
     - OnUnitActiveSec=1m
 ```
 
-This role can also send an event to an InfluxDB instance when a program has been deployed. Set the following variable in order to enable this:
-
-* `deployment_event_url` - where to write the event to, incl. user, password and database name (as URL path)
+This role can also send an event to an InfluxDB instance when a program has been deployed. Set the variable `deployment_event_url` in order to enable write the event, incl. user, password and database name (as URL path).
