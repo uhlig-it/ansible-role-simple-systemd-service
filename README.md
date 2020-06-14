@@ -15,7 +15,7 @@ program:
   ]
   # zero or more of OnActiveSec, OnBootSec, OnStartupSec, OnUnitActiveSec, OnUnitInactiveSec
   # see https://www.freedesktop.org/software/systemd/man/systemd.timer.html#OnActiveSec=
-  # if left empty, no timer will be installed
+  # if left empty, no timer will be installed and the binary is assumed to run as a daemon.
   timer:
     - OnUnitActiveSec=1m
 ```
