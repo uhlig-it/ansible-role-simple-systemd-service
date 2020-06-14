@@ -9,5 +9,5 @@
         - OnUnitActiveSec=24h
     influxdb_url: http://influxdb.local:8086/playbook-tests
   roles:
-    - role: suhlig.ansible-role-simple-systemd-service
+    - role: suhlig.simple_systemd_service
       become: true

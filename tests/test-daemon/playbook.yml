@@ -6,5 +6,5 @@
       name: hello
       description: Keeps on saying hello
   roles:
-    - role: suhlig.ansible-role-simple-systemd-service
+    - role: suhlig.simple_systemd_service
       become: true
