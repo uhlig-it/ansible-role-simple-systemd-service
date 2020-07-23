@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# To be run within the VM
+
+set -euo pipefail
+IFS=$'\n\t'
+
+# environment variables are present
+grep 'Environment=foo=bar' /etc/systemd/system/hello.service
+grep 'Environment=some=thing' /etc/systemd/system/hello.service

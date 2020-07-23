@@ -21,3 +21,7 @@ program:
 ```
 
 This role can also send an event to an InfluxDB instance when a program has been deployed. Set the variable `deployment_event_url` in order to enable write the event, incl. user, password and database name (as URL path).
+
+# TODO
+
+* support [readyness and liveness](https://vincent.bernat.ch/en/blog/2017-systemd-golang)
