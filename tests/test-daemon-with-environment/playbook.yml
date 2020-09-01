@@ -9,5 +9,5 @@
         - foo=bar
         - some=thing
   roles:
-    - role: suhlig.simple-systemd-service
+    - role: suhlig.simple_systemd_service
       become: true
