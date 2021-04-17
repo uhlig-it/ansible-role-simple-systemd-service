@@ -13,7 +13,7 @@ RestartSec=3
 {% for entry in program.environment | default([]) %}
 Environment={{ entry }}
 {% endfor %}
-ExecStart=/usr/local/bin/{{ program.name }} {{ program.parameters | default([]) | join(" ") | replace("%", "%%") }}
+ExecStart={{ program_location }} {{ program.parameters | default([]) | join(" ") | replace("%", "%%") }}
 
 [Install]
 WantedBy=default.target

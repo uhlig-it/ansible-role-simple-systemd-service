@@ -1,0 +1,13 @@
+---
+- hosts: all
+  vars:
+    program:
+      binary: tests/fixtures/hello-httpd
+      name: hello-http
+      description: Says hello via http
+      runtime_user: greeter
+      environment:
+        - PORT=8080
+  roles:
+    - role: suhlig.simple_systemd_service
+      become: true

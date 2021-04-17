@@ -1,0 +1,57 @@
+- name: Define program location
+  set_fact:
+    program_location: "/usr/local/bin/{{ program.name }}"
+
+- name: Program binary is present and up-to-date
+  copy:
+    src: "{{ program.binary }}"
+    dest: "{{ program_location }}"
+    mode: "0755"
+  register: program_copied
+  tags: [ copy, binary ]
+
+- name: Systemd service is present
+  template:
+    src: service.j2
+    dest: "/etc/systemd/system/{{ program.name }}.service"
+    mode: "0664"
+  register: service_rendered
+  tags: [ systemd, timer ]
+
+- name: Service is enabled and started
+  systemd:
+    name: "{{ program.name }}.service"
+    state: started
+    enabled: true
+    daemon_reload: true
+  when: program_copied.changed
+  tags: [ systemd, service ]
+
+- name: Service is enabled and restarted
+  systemd:
+    name: "{{ program.name }}.service"
+    state: restarted
+    enabled: true
+    daemon_reload: true
+  when: not program_copied.changed
+  tags: [ systemd, service ]
+
+- name: Systemd timer is present
+  template:
+    src: timer.j2
+    dest: "/etc/systemd/system/{{ program.name }}.timer"
+    mode: "0664"
+  when: program["timer"] is defined and (program["timer"] | length > 0)
+  tags: [ systemd, timer ]
+
+- name: Timer is started and enabled
+  systemd:
+    name: "{{ program.name }}.timer"
+    state: started
+    enabled: true
+    daemon_reload: true
+  when: program["timer"] is defined and (program["timer"] | length > 0)
+  tags: [ systemd, timer ]
+
+- include: deployment_event.yml
+  when: deployment_event_url is defined and (deployment_event_url | length > 0)

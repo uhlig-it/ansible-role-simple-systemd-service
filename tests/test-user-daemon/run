@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# To be run within the VM
+
+set -euo pipefail
+IFS=$'\n\t'
+
+## service exists
+## see https://stackoverflow.com/a/34347560/3212907 for why we need the env vars
+sudo \
+  XDG_RUNTIME_DIR="/run/user/$(id --user greeter)" \
+  DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id --user greeter)/bus" \
+  su greeter -c 'systemctl --user show hello-http.service | grep UnitFileState=enabled'
+
+## service is enabled
+sudo \
+  XDG_RUNTIME_DIR="/run/user/$(id --user greeter)" \
+  DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id --user greeter)/bus" \
+  su greeter -c 'systemctl --user show hello-http.service | grep UnitFilePreset=enabled'
+
+# service responds
+curl --fail --silent localhost:8080 > /dev/null
