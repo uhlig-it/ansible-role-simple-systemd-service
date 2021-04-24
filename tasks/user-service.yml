@@ -8,19 +8,18 @@
     shell: /bin/zsh
     state: present
   register: runtime_user_registered
-  tags: [ user, home, zsh ]
+  tags: [ user, home, zsh, dbus ]
 
-# TODO Is this really needed?
-#- name: runtime_user can connect to DBUS in order to interact with user service
-#  ansible.builtin.lineinfile:
-#    path: "{{ runtime_user_registered.home }}/.zshenv"
-#    create: true
-#    line: "{{ item }}"
-#  with_items:
-#    - export XDG_RUNTIME_DIR="/run/user/$UID"
-#    - export DBUS_SESSION_BUS_ADDRESS="unix:path=${XDG_RUNTIME_DIR}/bus"
-#  become_user: "{{ program.runtime_user }}"
-#  tags: [ home, zsh, environment, dbus ]
+- name: runtime_user can connect to DBUS in order to interact with user service
+  ansible.builtin.lineinfile:
+    path: "{{ runtime_user_registered.home }}/.zshenv"
+    create: true
+    line: "{{ item }}"
+  with_items:
+    - export XDG_RUNTIME_DIR="/run/user/$UID"
+    - export DBUS_SESSION_BUS_ADDRESS="unix:path=${XDG_RUNTIME_DIR}/bus"
+  become_user: "{{ program.runtime_user }}"
+  tags: [ home, zsh, environment, dbus ]
 
 - name: ~runtime_user/bin directory exists
   ansible.builtin.file:
