@@ -1,5 +1,5 @@
 - name: Version of the deployed binary is registered
-  command: "/usr/local/bin/{{ program.name }} --version"
+  command: "{{ program_location }} --version"
   register: program_version
   tags: [ version, deployment ]
 
