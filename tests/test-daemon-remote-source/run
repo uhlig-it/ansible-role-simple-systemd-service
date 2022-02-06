@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# To be run within the VM
+
+set -euo pipefail
+IFS=$'\n\t'
+
+# service exists
+sudo sh -c "systemctl show static-web-server.service | grep UnitFileState=enabled"
+
+# service is enabled
+sudo sh -c "systemctl show static-web-server.service | UnitFilePreset=enabled"
+
+# service is of type simple
+grep Type=simple /etc/systemd/system/static-web-server.service
+
+# web server is running
+# TODO does not work yet because process is in a subdirectoy
+# curl --fail localhost:8787 # must match what we configured in the playbook

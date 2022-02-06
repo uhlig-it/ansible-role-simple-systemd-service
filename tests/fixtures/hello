@@ -6,7 +6,7 @@ else
   if [ "$1" = "--version" ]; then
     echo "$(basename "$0") v.1.0"
   else
-    >&2 echo "Error: Don't know what to do with $@"
+    >&2 echo "Error: Don't know what to do with $*"
     exit 1
   fi
 fi

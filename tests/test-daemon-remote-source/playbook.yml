@@ -1,0 +1,25 @@
+---
+- hosts: all
+  vars:
+    program:
+      name: static-web-server
+      description: Serves a directory
+      binary: https://github.com/joseluisq/static-web-server/releases/download/v2.5.0/static-web-server-v2.5.0-x86_64-unknown-linux-gnu.tar.gz
+      parameters:
+        - "--port 8787"
+        - "--root /var/www"
+
+  tasks:
+    - name: www directory is present
+      ansible.builtin.file:
+        path: /var/www
+        state: directory
+        mode: '0775'
+        owner: root
+        group: root
+      become: true
+      tags: [ directory, spool ]
+
+  roles:
+    - role: suhlig.simple_systemd_service
+      become: true

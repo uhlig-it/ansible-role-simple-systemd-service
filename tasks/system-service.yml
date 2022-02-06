@@ -2,13 +2,25 @@
   set_fact:
     program_location: "/usr/local/bin/{{ program.name }}"
 
-- name: Program binary is present and up-to-date
+- name: Program binary is present and up-to-date (copied from controlling machine)
   copy:
     src: "{{ program.binary }}"
     dest: "{{ program_location }}"
     mode: "0755"
+  when: not program["binary"].startswith("http")
   register: program_copied
   tags: [ copy, binary ]
+
+# TODO: handle archives where the binary is in a subdirectory
+# TODO: handle URLs that are a binary (without being in an archive)
+- name: Program binary is present and up-to-date (fetched from remote)
+  ansible.builtin.unarchive:
+    src: "{{ program.binary }}"
+    dest: /usr/local/bin
+    remote_src: yes
+  when: program["binary"].startswith("http")
+  register: program_copied
+  tags: [ binary, remote, archive ]
 
 - name: Systemd service is present
   template:
