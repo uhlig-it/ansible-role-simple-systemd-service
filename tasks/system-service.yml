@@ -36,7 +36,7 @@
     state: started
     enabled: true
     daemon_reload: true
-  when: program_copied.changed
+  when: not program_copied.changed
   tags: [ systemd, service ]
 
 - name: Service is enabled and restarted
@@ -45,7 +45,7 @@
     state: restarted
     enabled: true
     daemon_reload: true
-  when: not program_copied.changed
+  when: program_copied.changed
   tags: [ systemd, service ]
 
 - name: Systemd timer is present
