@@ -24,4 +24,5 @@ This role can also send an event to an InfluxDB instance when a program has been
 
 # TODO
 
+* Restart the service when the binary has changed (did not work when plaintweet was updated)
 * support [readyness and liveness](https://vincent.bernat.ch/en/blog/2017-systemd-golang)

@@ -10,9 +10,9 @@ Type=simple
 Restart=always
 RestartSec=3
 {% endif %}
-{% for entry in program.environment | default([]) %}
-Environment={{ entry }}
-{% endfor %}
+{% if program["environment"] is defined and (program["environment"] | length > 0) %}
+EnvironmentFile=/etc/{{ program.name }}.conf
+{% endif %}
 ExecStart={{ program_location }} {{ program.parameters | default([]) | join(" ") | replace("%", "%%") }}
 
 [Install]

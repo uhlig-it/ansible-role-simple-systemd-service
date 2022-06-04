@@ -19,8 +19,17 @@
     dest: /usr/local/bin
     remote_src: yes
   when: program["binary"].startswith("http")
-  register: program_copied
+  register: program_downloaded
   tags: [ binary, remote, archive ]
+
+- name: Config file is present
+  template:
+    src: program.conf.j2
+    dest: "/etc/{{ program.name }}.conf"
+    mode: "0664"
+  register: config_rendered
+  when: program.environment
+  tags: [ systemd, config ]
 
 - name: Systemd service is present
   template:
@@ -28,7 +37,7 @@
     dest: "/etc/systemd/system/{{ program.name }}.service"
     mode: "0664"
   register: service_rendered
-  tags: [ systemd, timer ]
+  tags: [ systemd, service ]
 
 - name: Service is enabled and started
   systemd:
@@ -36,7 +45,7 @@
     state: started
     enabled: true
     daemon_reload: true
-  when: not program_copied.changed
+  when: not (program_copied.changed and program_downloaded.changed)
   tags: [ systemd, service ]
 
 - name: Service is enabled and restarted
@@ -45,7 +54,7 @@
     state: restarted
     enabled: true
     daemon_reload: true
-  when: program_copied.changed
+  when: program_copied.changed or program_downloaded.changed or config_rendered.changed
   tags: [ systemd, service ]
 
 - name: Systemd timer is present

@@ -56,7 +56,7 @@ Vagrant.configure('2') do |config|
       if test_script.exist?
         machine.vm.provision 'test-prereqs', type: 'shell' do |script|
           script.env = { DEBIAN_FRONTEND: 'noninteractive' }
-          script.inline = 'apt-get --yes install curl jq'
+          script.inline = 'apt-get --yes install binutils curl jq'
         end
 
         machine.vm.provision 'run-tests', type: 'shell', path: test_script.to_s, privileged: false
