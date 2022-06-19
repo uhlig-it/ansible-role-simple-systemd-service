@@ -28,7 +28,7 @@
     dest: "/etc/{{ program.name }}.conf"
     mode: "0664"
   register: config_rendered
-  when: program.environment
+  when: program["environment"] is defined and program.environment
   tags: [ systemd, config ]
 
 - name: Systemd service is present
