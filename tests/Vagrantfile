@@ -2,7 +2,7 @@ require 'pathname'
 
 Vagrant.configure('2') do |config|
   debian = %w(buster bullseye).map { |b| "debian/#{b}64" }
-  ubuntu = %w(bionic focal).map { |b| "ubuntu/#{b}64" }
+  ubuntu = %w(bionic focal jammy).map { |b| "ubuntu/#{b}64" }
 
   Pathname.glob('test-*').product(debian + ubuntu).each do |test_dir, box|
     test_name = test_dir.to_s
@@ -22,7 +22,6 @@ Vagrant.configure('2') do |config|
       machine.vm.provision 'ansible' do |ansible|
         ansible.playbook = (test_dir / 'playbook.yml').to_s
         ansible.galaxy_roles_path = '../..'
-        ansible.compatibility_mode = '2.0'
 
         extra_vars = {}
         extra_vars[:ansible_python_interpreter] = '/usr/bin/python3'

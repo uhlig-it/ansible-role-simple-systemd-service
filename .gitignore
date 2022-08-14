@@ -1,5 +1,6 @@
-.envrc
-ansible.cfg
-.DS_Store
 *.retry
+.DS_Store
+.envrc
 .vagrant
+.vscode
+ansible.cfg

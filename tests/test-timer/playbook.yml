@@ -1,12 +1,12 @@
 ---
 - hosts: all
-  vars:
-    program:
-      binary: tests/fixtures/hello
-      name: hello
-      description: Says hello
-      timer:
-        - OnUnitActiveSec=24h
   roles:
     - role: suhlig.simple_systemd_service
       become: true
+      vars:
+        program:
+          binary: tests/fixtures/hello
+          name: hello
+          description: Says hello
+          timer:
+            - OnUnitActiveSec=24h

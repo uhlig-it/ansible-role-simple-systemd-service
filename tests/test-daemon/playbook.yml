@@ -1,10 +1,11 @@
 ---
 - hosts: all
-  vars:
-    program:
-      binary: tests/fixtures/hellod
-      name: hello
-      description: Keeps on saying hello
+
   roles:
     - role: suhlig.simple_systemd_service
       become: true
+      vars:
+        program:
+          binary: tests/fixtures/hellod
+          name: hello
+          description: Keeps on saying hello
