@@ -73,6 +73,3 @@
     daemon_reload: true
   when: program["timer"] is defined and (program["timer"] | length > 0)
   tags: [ systemd, timer ]
-
-- include: deployment_event.yml
-  when: deployment_event_url is defined and (deployment_event_url | length > 0)

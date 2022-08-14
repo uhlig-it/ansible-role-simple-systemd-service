@@ -20,8 +20,6 @@ program:
     - OnUnitActiveSec=1m
 ```
 
-This role can also send an event to an InfluxDB instance when a program has been deployed. Set the variable `deployment_event_url` in order to enable write the event, incl. user, password and database name (as URL path).
-
 # TODO
 
 * Restart the service when the binary has changed (did not work when plaintweet was updated)
