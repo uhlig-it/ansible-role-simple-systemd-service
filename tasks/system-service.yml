@@ -22,11 +22,16 @@
   register: program_downloaded
   tags: [ binary, remote, archive ]
 
+- name: Configure path of environment_file
+  ansible.builtin.set_fact:
+    environment_file_path: "/etc/{{ program.name }}.conf"
+  tags: [ systemd, config, environment ]
+
 - name: Config file is present
   ansible.builtin.template:
     src: program.conf.j2
-    dest: "/etc/{{ program.name }}.conf"
-    mode: "0664"
+    dest: "{{ environment_file_path }}"
+    mode: "0660"
   register: config_rendered
   when: program["environment"] is defined and program.environment
   tags: [ systemd, config ]

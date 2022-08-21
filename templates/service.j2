@@ -11,7 +11,7 @@ Restart=always
 RestartSec=3
 {% endif %}
 {% if program["environment"] is defined and (program["environment"] | length > 0) %}
-EnvironmentFile=/etc/{{ program.name }}.conf
+EnvironmentFile={{ environment_file_path }}
 {% endif %}
 ExecStart={{ program_location }} {{ program.parameters | default([]) | join(" ") | replace("%", "%%") }}
 
