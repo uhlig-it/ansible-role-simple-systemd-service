@@ -3,7 +3,7 @@
     program_location: "/usr/local/bin/{{ program.name }}"
 
 - name: Program binary is present and up-to-date (copied from controlling machine)
-  copy:
+  ansible.builtin.copy:
     src: "{{ program.binary }}"
     dest: "{{ program_location }}"
     mode: "0755"
@@ -23,7 +23,7 @@
   tags: [ binary, remote, archive ]
 
 - name: Config file is present
-  template:
+  ansible.builtin.template:
     src: program.conf.j2
     dest: "/etc/{{ program.name }}.conf"
     mode: "0664"
@@ -32,7 +32,7 @@
   tags: [ systemd, config ]
 
 - name: Systemd service is present
-  template:
+  ansible.builtin.template:
     src: service.j2
     dest: "/etc/systemd/system/{{ program.name }}.service"
     mode: "0664"
@@ -40,7 +40,7 @@
   tags: [ systemd, service ]
 
 - name: Service is enabled and started
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ program.name }}.service"
     state: started
     enabled: true
@@ -49,7 +49,7 @@
   tags: [ systemd, service ]
 
 - name: Service is enabled and restarted
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ program.name }}.service"
     state: restarted
     enabled: true
@@ -58,7 +58,7 @@
   tags: [ systemd, service ]
 
 - name: Systemd timer is present
-  template:
+  ansible.builtin.template:
     src: timer.j2
     dest: "/etc/systemd/system/{{ program.name }}.timer"
     mode: "0664"
@@ -66,7 +66,7 @@
   tags: [ systemd, timer ]
 
 - name: Timer is started and enabled
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ program.name }}.timer"
     state: started
     enabled: true
