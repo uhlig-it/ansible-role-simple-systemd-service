@@ -1,6 +1,7 @@
 [Unit]
 Description={{ program.description }}
-After=network-online.target
+Wants={{ systemd.target }}
+After={{ systemd.target }}
 
 [Service]
 {% if program["timer"] is defined and (program["timer"] | length > 0) %}
@@ -16,4 +17,4 @@ EnvironmentFile={{ environment_file_path }}
 ExecStart={{ program_location }} {{ program.parameters | default([]) | join(" ") | replace("%", "%%") }}
 
 [Install]
-WantedBy=default.target
+WantedBy={{ systemd.target }}

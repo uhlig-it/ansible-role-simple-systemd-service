@@ -1,3 +1,5 @@
 program:
   parameters: []
   timer: []
+systemd:
+  target: network-online.target
