@@ -1,5 +1,5 @@
-- include: system-service.yml
+- include_tasks: system-service.yml
   when: program.runtime_user is undefined
 
-- include: user-service.yml
+- include_tasks: user-service.yml
   when: program.runtime_user is defined

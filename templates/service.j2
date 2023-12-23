@@ -1,7 +1,15 @@
+# {{ ansible_managed }}
+
 [Unit]
 Description={{ program.description }}
 Wants={{ systemd.target }}
 After={{ systemd.target }}
+{% if systemd["start_limit_interval"] is defined %}
+StartLimitIntervalSec={{ systemd.start_limit_interval }}
+{% endif %}
+{% if systemd["start_limit_burst"] is defined %}
+StartLimitBurst={{ systemd.start_limit_burst }}
+{% endif %}
 
 [Service]
 {% if program["timer"] is defined and (program["timer"] | length > 0) %}
