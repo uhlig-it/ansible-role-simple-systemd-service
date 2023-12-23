@@ -1,8 +1,8 @@
 require 'pathname'
 
 Vagrant.configure('2') do |config|
-  debian = %w(buster bullseye).map { |b| "debian/#{b}64" }
-  ubuntu = %w(bionic focal jammy).map { |b| "ubuntu/#{b}64" }
+  debian = %w(bullseye bookworm).map { |b| "debian/#{b}64" }
+  ubuntu = %w(focal jammy).map { |b| "ubuntu/#{b}64" }
 
   Pathname.glob('test-*').product(debian + ubuntu).each do |test_dir, box|
     test_name = test_dir.to_s
