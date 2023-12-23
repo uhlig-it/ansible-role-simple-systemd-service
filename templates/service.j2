@@ -8,7 +8,7 @@ After={{ systemd.target }}
 Type=oneshot
 {% else %}
 Type=simple
-Restart=always
+Restart=on-failure
 RestartSec=3
 {% endif %}
 {% if program["environment"] is defined and (program["environment"] | length > 0) %}
