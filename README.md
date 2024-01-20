@@ -28,5 +28,4 @@ program:
 
 # TODO
 
-* Restart the service when the binary has changed (did not work when plaintweet was updated)
 * Support [readyness and liveness](https://vincent.bernat.ch/en/blog/2017-systemd-golang)
