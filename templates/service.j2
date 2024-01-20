@@ -22,7 +22,7 @@ RestartSec=3
 {% if program["environment"] is defined and (program["environment"] | length > 0) %}
 EnvironmentFile={{ environment_file_path }}
 {% endif %}
-ExecStart={{ program_location }} {{ program.parameters | default([]) | map('quote') | join(" ") | replace("%", "%%") }}
+ExecStart={{ program_location }} {{ program.parameters | default([]) | join(" ") | replace("%", "%%") }}
 
 [Install]
 WantedBy={{ systemd.target }}
