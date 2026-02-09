@@ -33,7 +33,7 @@
     dest: "{{ environment_file_path }}"
     mode: "0660"
   register: config_rendered
-  when: program["environment"] is defined and program.environment
+  when: program["environment"] is defined and (program["environment"] | length > 0)
   tags: [ systemd, config ]
 
 - name: Systemd service is present
