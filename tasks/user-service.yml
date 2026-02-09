@@ -7,6 +7,8 @@
     name: "{{ program.runtime_user }}"
     shell: /bin/zsh
     state: present
+    groups: "{{ program.groups | default(omit, true) }}"
+    append: true
   register: runtime_user_registered
   tags: [ user, home, zsh, dbus ]
 
