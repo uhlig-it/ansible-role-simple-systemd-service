@@ -8,7 +8,7 @@
     shell: /bin/zsh
     state: present
     groups: "{{ program.groups | default(omit, true) }}"
-    append: true
+    append: "{{ (program.groups | default([])) | length > 0 }}"
   register: runtime_user_registered
   tags: [ user, home, zsh, dbus ]
 
