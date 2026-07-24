@@ -2,6 +2,13 @@
 # Create the service as user service (rather than a system service)
 # https://serverfault.com/a/841150
 #
+- name: acl package is installed
+  ansible.builtin.package:
+    name: acl
+    state: present
+  become: true
+  tags: [user, acl, dependencies]
+
 - name: runtime_user exists
   ansible.builtin.user:
     name: "{{ program.runtime_user }}"
