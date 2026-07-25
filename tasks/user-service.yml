@@ -111,23 +111,33 @@
   become_user: "{{ program.runtime_user }}"
   tags: [ systemd, service ]
 
-- name: User service is enabled and started
+- name: Service is enabled
+  ansible.builtin.systemd:
+    name: "{{ program.name }}.service"
+    scope: user
+    enabled: true
+  become_user: "{{ program.runtime_user }}"
+  tags: [ systemd, service ]
+
+- name: Service is started (unless managed by a timer)
   ansible.builtin.systemd:
     name: "{{ program.name }}.service"
     scope: user
     state: started
-    enabled: true
-  when: not (program_copied.changed and program_downloaded.changed)
+  when:
+    - not (program_copied.changed and program_downloaded.changed)
+    - not (program["timer"] is defined and (program["timer"] | length > 0))
   become_user: "{{ program.runtime_user }}"
   tags: [ systemd, service ]
 
-- name: User service is enabled and restarted
+- name: Service is restarted (unless managed by a timer)
   ansible.builtin.systemd:
     name: "{{ program.name }}.service"
     scope: user
     state: restarted
-    enabled: true
-  when: program_copied.changed or program_downloaded.changed or config_rendered.changed
+  when:
+    - program_copied.changed or program_downloaded.changed or config_rendered.changed
+    - not (program["timer"] is defined and (program["timer"] | length > 0))
   become_user: "{{ program.runtime_user }}"
   tags: [ systemd, service ]
 
