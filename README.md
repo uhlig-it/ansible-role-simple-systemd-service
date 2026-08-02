@@ -8,7 +8,9 @@ Ansible role for deploying a simple binary that runs as a systemd service; eithe
 systemd:
   target: network.target
   start_limit_interval: 5m
-  start_limit_burst: 10
+  start_limit_burst: 20
+  restart: on-failure
+  restart_sec: 3s
 program:
   binary: /tmp/hello.amd64
   name: hello

@@ -136,7 +136,7 @@
     scope: user
     state: restarted
   when:
-    - program_copied.changed or program_downloaded.changed or config_rendered.changed
+    - program_copied.changed or program_downloaded.changed or config_rendered.changed or service_rendered.changed
     - not (program["timer"] is defined and (program["timer"] | length > 0))
   become_user: "{{ program.runtime_user }}"
   tags: [ systemd, service ]

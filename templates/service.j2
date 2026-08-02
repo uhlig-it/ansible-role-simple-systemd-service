@@ -16,8 +16,8 @@ StartLimitBurst={{ systemd.start_limit_burst }}
 Type=oneshot
 {% else %}
 Type=simple
-Restart=on-failure
-RestartSec=3
+Restart={{ systemd.restart | default('on-failure') }}
+RestartSec={{ systemd.restart_sec | default('3s') }}
 {% endif %}
 {% if program["environment"] is defined and (program["environment"] | length > 0) %}
 EnvironmentFile={{ environment_file_path }}
