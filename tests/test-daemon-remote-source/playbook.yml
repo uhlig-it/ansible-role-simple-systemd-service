@@ -13,7 +13,7 @@
       tags: [ directory, spool ]
 
   roles:
-    - role: suhlig.simple_systemd_service
+    - role: uhlig-it.simple_systemd_service
       become: true
       vars:
         program:
