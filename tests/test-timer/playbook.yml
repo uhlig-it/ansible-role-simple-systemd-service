@@ -8,5 +8,6 @@
           binary: tests/fixtures/hello
           name: hello
           description: Says hello
+          runtime_user: hello
           timer:
             - OnUnitActiveSec=24h

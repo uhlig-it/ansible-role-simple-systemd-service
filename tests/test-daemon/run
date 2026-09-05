@@ -5,11 +5,18 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# service exists
-sudo sh -c "systemctl show hello.service | grep UnitFileState=enabled"
-
-# service is enabled
-sudo sh -c "systemctl show hello.service | UnitFilePreset=enabled"
+# service is enabled as a system service
+test "$(systemctl is-enabled hello.service)" = enabled
 
 # service is of type simple
-grep Type=simple /etc/systemd/system/hello.service
+grep '^Type=simple$' /etc/systemd/system/hello.service
+
+# service runs as the dedicated system user, with hardening
+grep '^User=hello$' /etc/systemd/system/hello.service
+grep '^NoNewPrivileges=true$' /etc/systemd/system/hello.service
+grep '^PrivateTmp=true$' /etc/systemd/system/hello.service
+grep '^ProtectSystem=full$' /etc/systemd/system/hello.service
+
+# runtime_user is a nologin system account without a home directory
+getent passwd hello | grep -q '/usr/sbin/nologin'
+test "$(getent passwd hello | cut -d: -f6)" = /nonexistent

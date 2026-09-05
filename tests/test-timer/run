@@ -5,14 +5,12 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# service exists
-sudo sh -c "systemctl show hello.service | grep UnitFileState=enabled"
+# service is enabled as a system service
+test "$(systemctl is-enabled hello.service)" = enabled
 
-# service is enabled
-sudo sh -c "systemctl show hello.service | UnitFilePreset=enabled"
+# service is of type oneshot and runs as the dedicated system user
+grep '^Type=oneshot$' /etc/systemd/system/hello.service
+grep '^User=hello$' /etc/systemd/system/hello.service
 
 # timer is active
-sudo sh -c "systemctl show hello.timer | grep -q "ActiveState=active""
-
-# service is of type oneshot
-grep Type=oneshot /etc/systemd/system/hello.service
+test "$(systemctl is-active hello.timer)" = active

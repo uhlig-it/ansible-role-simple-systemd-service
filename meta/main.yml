@@ -1,8 +1,11 @@
 galaxy_info:
   role_name: simple_systemd_service
   author: Steffen Uhlig
+  description: >-
+    Deploys a simple binary as a hardened systemd system service that runs as
+    a dedicated, unprivileged system user.
   license: MIT
-  min_ansible_version: 2.6
+  min_ansible_version: "2.10"
   platforms:
     - name: Debian
       versions:

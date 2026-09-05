@@ -3,7 +3,9 @@ program:
   timer: []
 systemd:
   target: network-online.target
+  wanted_by: multi-user.target
   restart: on-failure
   restart_sec: 3s
   start_limit_interval: 5m
   start_limit_burst: 20
+  hardening: true

@@ -8,6 +8,7 @@
           binary: tests/fixtures/hellod
           name: hello
           description: Keeps on saying hello
+          runtime_user: hello
           environment:
-            - foo=bar
-            - some=thing
+            foo: bar
+            some: thing

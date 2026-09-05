@@ -23,3 +23,4 @@
           parameters:
             - "--port 8787"
             - "--root /var/www"
+          runtime_user: static-web-server

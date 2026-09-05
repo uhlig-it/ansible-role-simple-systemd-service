@@ -5,8 +5,10 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# environment variable file is present
+# environment variable file is present with restrictive permissions
 test -f /etc/hello.conf
+test "$(stat -c '%a' /etc/hello.conf)" = 640
+test "$(stat -c '%U:%G' /etc/hello.conf)" = root:hello
 
 # process is configured to have these entries
 pid=$(systemctl show --property MainPID --value hello.service)

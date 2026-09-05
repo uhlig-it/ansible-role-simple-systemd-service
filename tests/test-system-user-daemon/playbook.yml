@@ -10,4 +10,4 @@
           description: Says hello via http
           runtime_user: greeter
           environment:
-            - PORT=8080
+            PORT: 8080

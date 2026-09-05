@@ -1,5 +1,145 @@
-- include_tasks: system-service.yml
-  when: program.runtime_user is undefined
+---
+# Deploys a binary as a hardened systemd system service that runs as a
+# dedicated, unprivileged system user.
+#
+# This is the only deployment mode of this role. Earlier versions offered a
+# root-running system service and a per-user service; see MIGRATION.markdown
+# for how to migrate services deployed with those.
 
-- include_tasks: user-service.yml
-  when: program.runtime_user is defined
+- name: Configuration is complete
+  ansible.builtin.assert:
+    that:
+      - program.binary is defined
+      - program.runtime_user is defined
+      - program.runtime_user | length > 0
+    fail_msg: >-
+      'program.binary' and 'program.runtime_user' are required. The role
+      deploys a binary as a hardened system service running as a dedicated
+      system user - never as root.
+  tags: [ assertion ]
+
+- name: runtime_user exists as an unprivileged system user
+  ansible.builtin.user:
+    name: "{{ program.runtime_user }}"
+    system: true
+    shell: /usr/sbin/nologin
+    home: "{{ program.data_dir | default('/nonexistent') }}"
+    create_home: false
+    groups: "{{ program.groups | default(omit, true) }}"
+    append: "{{ (program.groups | default([])) | length > 0 }}"
+  register: runtime_user_registered
+  tags: [ user ]
+
+- name: Data directory is present
+  ansible.builtin.file:
+    path: "{{ program.data_dir }}"
+    state: directory
+    mode: '0750'
+    owner: "{{ program.runtime_user }}"
+    group: "{{ program.runtime_user }}"
+  when: program.data_dir is defined and (program.data_dir | length > 0)
+  tags: [ data, directory ]
+
+- name: Define program location
+  ansible.builtin.set_fact:
+    program_location: "/usr/local/bin/{{ program.name }}"
+  tags: [ binary ]
+
+- name: Program binary is present and up-to-date (copied from controlling machine)
+  ansible.builtin.copy:
+    src: "{{ program.binary }}"
+    dest: "{{ program_location }}"
+    mode: "0755"
+  when: program["binary"] is defined and not program["binary"].startswith("http")
+  register: program_copied
+  tags: [ copy, binary ]
+
+- name: Program binary is present and up-to-date (fetched from remote)
+  ansible.builtin.unarchive:
+    src: "{{ program.binary }}"
+    dest: /usr/local/bin
+    remote_src: true
+  when: program["binary"] is defined and program["binary"].startswith("http")
+  register: program_downloaded
+  tags: [ binary, remote, archive ]
+
+- name: Environment file is present
+  ansible.builtin.template:
+    src: program.conf.j2
+    dest: "/etc/{{ program.name }}.conf"
+    mode: "0640"
+    owner: root
+    group: "{{ program.runtime_user }}"
+  register: config_rendered
+  when: program["environment"] is defined and (program["environment"] | length > 0)
+  tags: [ systemd, config, environment ]
+
+- name: Service unit is present
+  ansible.builtin.template:
+    src: service.j2
+    dest: "/etc/systemd/system/{{ program.name }}.service"
+    mode: "0644"
+  register: service_rendered
+  tags: [ systemd, service ]
+
+- name: Timer unit is present
+  ansible.builtin.template:
+    src: timer.j2
+    dest: "/etc/systemd/system/{{ program.name }}.timer"
+    mode: "0644"
+  when: program["timer"] is defined and (program["timer"] | length > 0)
+  register: timer_rendered
+  tags: [ systemd, timer ]
+
+- name: Any deployed file changed
+  ansible.builtin.set_fact:
+    service_files_changed: >-
+      {{
+        (program_copied is defined and program_copied.changed)
+        or (program_downloaded is defined and program_downloaded.changed)
+        or (config_rendered is defined and config_rendered.changed)
+        or service_rendered.changed
+        or (timer_rendered is defined and timer_rendered.changed)
+        or runtime_user_registered.changed
+      }}
+  tags: [ systemd ]
+
+- name: Service is enabled
+  ansible.builtin.systemd:
+    name: "{{ program.name }}.service"
+    enabled: true
+    daemon_reload: true
+  tags: [ systemd, service ]
+
+- name: Timer is enabled
+  ansible.builtin.systemd:
+    name: "{{ program.name }}.timer"
+    enabled: true
+    daemon_reload: true
+  when: program["timer"] is defined and (program["timer"] | length > 0)
+  tags: [ systemd, timer ]
+
+- name: Service is restarted if anything changed (unless managed by a timer)
+  ansible.builtin.systemd:
+    name: "{{ program.name }}.service"
+    state: restarted
+  when:
+    - not (program["timer"] is defined and (program["timer"] | length > 0))
+    - service_files_changed | bool
+  tags: [ systemd, service ]
+
+- name: Service is started (unless managed by a timer)
+  ansible.builtin.systemd:
+    name: "{{ program.name }}.service"
+    state: started
+  when:
+    - not (program["timer"] is defined and (program["timer"] | length > 0))
+    - not service_files_changed | bool
+  tags: [ systemd, service ]
+
+- name: Timer is started
+  ansible.builtin.systemd:
+    name: "{{ program.name }}.timer"
+    state: started
+  when: program["timer"] is defined and (program["timer"] | length > 0)
+  tags: [ systemd, timer ]

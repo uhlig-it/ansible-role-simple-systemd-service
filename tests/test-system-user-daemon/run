@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# To be run within the VM
+
+set -euo pipefail
+IFS=$'\n\t'
+
+# service is enabled as a system service
+test "$(systemctl is-enabled hello-http.service)" = enabled
+
+# service runs as the dedicated system user, with hardening
+grep '^User=greeter$' /etc/systemd/system/hello-http.service
+grep '^NoNewPrivileges=true$' /etc/systemd/system/hello-http.service
+grep '^ProtectSystem=full$' /etc/systemd/system/hello-http.service
+
+# runtime_user is a nologin system account without a home directory
+getent passwd greeter | grep -q '/usr/sbin/nologin'
+test "$(getent passwd greeter | cut -d: -f6)" = /nonexistent
+
+# service responds
+curl --fail --silent localhost:8080 > /dev/null

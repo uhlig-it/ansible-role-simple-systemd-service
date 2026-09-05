@@ -12,6 +12,14 @@ StartLimitBurst={{ systemd.start_limit_burst }}
 {% endif %}
 
 [Service]
+User={{ program.runtime_user }}
+Group={{ program.runtime_user }}
+{% if systemd.hardening | default(true) %}
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+{% endif %}
+WorkingDirectory={{ program.working_directory | default(program.data_dir | default('/')) }}
 {% if program["timer"] is defined and (program["timer"] | length > 0) %}
 Type=oneshot
 {% else %}
@@ -20,9 +28,9 @@ Restart={{ systemd.restart | default('on-failure') }}
 RestartSec={{ systemd.restart_sec | default('3s') }}
 {% endif %}
 {% if program["environment"] is defined and (program["environment"] | length > 0) %}
-EnvironmentFile={{ environment_file_path }}
+EnvironmentFile=/etc/{{ program.name }}.conf
 {% endif %}
 ExecStart={{ program_location }} {{ program.parameters | default([]) | join(" ") | replace("%", "%%") }}
 
 [Install]
-WantedBy={{ systemd.target }}
+WantedBy={{ systemd.wanted_by | default('multi-user.target') }}
