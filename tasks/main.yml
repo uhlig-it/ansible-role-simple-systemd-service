@@ -45,6 +45,17 @@
     program_location: "/usr/local/bin/{{ program.name }}"
   tags: [ binary ]
 
+# A previous deployment of an archive that contained a directory named like
+# the program (e.g. an unpacked source tree) can leave a directory where the
+# binary belongs. A copy into an existing directory would land inside it, so
+# remove it before installing the binary.
+- name: Leftover directory at the program location is removed
+  ansible.builtin.file:
+    path: "{{ program_location }}"
+    state: absent
+  when: program_location is directory
+  tags: [ binary ]
+
 - name: Program binary is present and up-to-date (copied from controlling machine)
   ansible.builtin.copy:
     src: "{{ program.binary }}"
@@ -54,14 +65,51 @@
   register: program_copied
   tags: [ copy, binary ]
 
-- name: Program binary is present and up-to-date (fetched from remote)
-  ansible.builtin.unarchive:
-    src: "{{ program.binary }}"
-    dest: /usr/local/bin
-    remote_src: true
+- name: Program binary is downloaded and only the binary is installed (fetched from remote)
   when: program["binary"] is defined and program["binary"].startswith("http")
-  register: program_downloaded
   tags: [ binary, remote, archive ]
+  block:
+    - name: Staging directory for the downloaded archive is created
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: "{{ program.name }}"
+      register: program_staging_dir
+
+    - name: Archive is unpacked into the staging directory
+      ansible.builtin.unarchive:
+        src: "{{ program.binary }}"
+        dest: "{{ program_staging_dir.path }}"
+        remote_src: true
+
+    - name: The archive's binary is located
+      ansible.builtin.find:
+        paths: "{{ program_staging_dir.path }}"
+        patterns: "{{ program.name }}"
+        file_type: file
+        recurse: true
+      register: program_binary_found
+
+    - name: The archive contains exactly one file named '{{ program.name }}'
+      ansible.builtin.assert:
+        that:
+          - program_binary_found.files | length == 1
+        fail_msg: >-
+          The archive at {{ program.binary }} must contain exactly one file
+          named '{{ program.name }}', but it contains
+          {{ program_binary_found.files | length }}.
+
+    - name: Only the binary from the archive is installed
+      ansible.builtin.copy:
+        src: "{{ program_binary_found.files[0].path }}"
+        dest: "{{ program_location }}"
+        mode: "0755"
+        remote_src: true
+      register: program_downloaded
+
+    - name: Staging directory is removed
+      ansible.builtin.file:
+        path: "{{ program_staging_dir.path }}"
+        state: absent
 
 - name: Environment file is present
   ansible.builtin.template:

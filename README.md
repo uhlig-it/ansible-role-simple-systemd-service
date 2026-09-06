@@ -45,7 +45,7 @@ systemd:
   hardening: true                     # NoNewPrivileges=true, PrivateTmp=true, ProtectSystem=full
 ```
 
-If `program.binary` is a URL, it is downloaded and unpacked into `/usr/local/bin`; the archive must contain the executable named `{{ program.name }}` at its top level.
+If `program.binary` is a URL, the archive is downloaded and **only** the executable named `{{ program.name }}` is extracted from it (it may live anywhere inside the archive) and installed as `/usr/local/bin/{{ program.name }}`; any other content of the archive is discarded.
 
 # TODO
 

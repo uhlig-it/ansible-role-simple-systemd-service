@@ -14,5 +14,6 @@ grep '^Type=simple$' /etc/systemd/system/static-web-server.service
 # service runs as the dedicated system user
 grep '^User=static-web-server$' /etc/systemd/system/static-web-server.service
 
-# TODO: does not work yet because the binary is in a subdirectory of the archive
-# curl --fail localhost:8787
+# binary arrives in a subdirectory of the archive; the role installs only the
+# binary itself, which the fetch task now handles
+curl --fail localhost:8787
